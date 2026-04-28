@@ -10,48 +10,70 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background:  "#050505",
-        surface:     "#0d0d0d",
-        "surface-2": "#141414",
-        "surface-3": "#1a1a1a",
-        border:      "rgba(255,255,255,0.06)",
-        cyan:   { DEFAULT: "#00f5ff", dim: "#00c4cc", glow: "rgba(0,245,255,0.15)" },
-        pink:   { DEFAULT: "#ff2d78", dim: "#cc2460", glow: "rgba(255,45,120,0.15)" },
-        purple: { DEFAULT: "#b06fff", dim: "#8c4fcc", glow: "rgba(176,111,255,0.15)" },
-        yes:    "#00f5ff",
-        no:     "#ff2d78",
-        primary:   "#f0f0f0",
-        secondary: "#8892a4",
-        tertiary:  "#4a5568",
-        muted:     "#3d4450",
+        // MegaETH brand — dark background, electric green accent
+        bg:          "#080808",
+        "bg-2":      "#0f0f0f",
+        "bg-3":      "#161616",
+        "bg-4":      "#1d1d1d",
+        border:      "rgba(255,255,255,0.07)",
+        "border-hi": "rgba(255,255,255,0.13)",
+
+        // Primary accent — MegaETH green
+        green:  {
+          DEFAULT: "#00ff88",
+          dim:     "#00cc6a",
+          muted:   "rgba(0,255,136,0.10)",
+          glow:    "rgba(0,255,136,0.20)",
+        },
+        // Secondary accents
+        red:    { DEFAULT: "#ff4545", muted: "rgba(255,69,69,0.10)" },
+        purple: { DEFAULT: "#9b6fff", muted: "rgba(155,111,255,0.10)" },
+        amber:  { DEFAULT: "#ffaa00", muted: "rgba(255,170,0,0.10)" },
+
+        // Text scale
+        primary:   "#f5f5f5",
+        secondary: "#7a7a7a",
+        tertiary:  "#3d3d3d",
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "monospace"],
       },
       boxShadow: {
-        "cyan-glow":   "0 0 20px rgba(0,245,255,0.25), 0 0 60px rgba(0,245,255,0.1)",
-        "pink-glow":   "0 0 20px rgba(255,45,120,0.25), 0 0 60px rgba(255,45,120,0.1)",
-        "card":        "0 1px 0 rgba(255,255,255,0.05), 0 4px 24px rgba(0,0,0,0.4)",
-        "card-hover":  "0 1px 0 rgba(0,245,255,0.1), 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,245,255,0.08)",
+        "green-sm":   "0 0 12px rgba(0,255,136,0.15)",
+        "green-md":   "0 0 24px rgba(0,255,136,0.20), 0 0 8px rgba(0,255,136,0.10)",
+        "card":       "0 0 0 1px rgba(255,255,255,0.07)",
+        "card-hover": "0 0 0 1px rgba(255,255,255,0.13), 0 8px 32px rgba(0,0,0,0.5)",
+        "panel":      "inset 0 1px 0 rgba(255,255,255,0.04)",
       },
       animation: {
-        "pulse-slow": "pulse 3s cubic-bezier(0.4,0,0.6,1) infinite",
-        "slide-up":   "slideUp 0.4s cubic-bezier(0.16,1,0.3,1)",
-        "fade-in":    "fadeIn 0.3s ease-out",
+        "fade-up":    "fadeUp 0.3s ease-out both",
+        "fade-in":    "fadeIn 0.2s ease-out both",
+        "pulse-dot":  "pulseDot 1.8s ease-in-out infinite",
+        "shimmer":    "shimmer 1.8s linear infinite",
+        "spin-slow":  "spin 2s linear infinite",
       },
       keyframes: {
-        slideUp: {
-          from: { transform: "translateY(12px)", opacity: "0" },
-          to:   { transform: "translateY(0)",    opacity: "1" },
+        fadeUp: {
+          from: { opacity: "0", transform: "translateY(10px)" },
+          to:   { opacity: "1", transform: "translateY(0)" },
         },
         fadeIn: {
           from: { opacity: "0" },
           to:   { opacity: "1" },
+        },
+        pulseDot: {
+          "0%,100%": { opacity: "1", transform: "scale(1)" },
+          "50%":     { opacity: "0.4", transform: "scale(0.8)" },
+        },
+        shimmer: {
+          "0%":   { backgroundPosition: "-600px 0" },
+          "100%": { backgroundPosition:  "600px 0" },
         },
       },
     },
   },
   plugins: [],
 };
+
 export default config;

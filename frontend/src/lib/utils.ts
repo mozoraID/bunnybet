@@ -4,11 +4,15 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { USDM_DECIMALS, CREATOR_FEE_BPS, FEE_DENOMINATOR } from "./contracts";
 
+// Re-export so pages can import addrUrl / txUrl from either utils or contracts
+export { txUrl, addrUrl } from "./contracts";
+
+// ── Tailwind class merger ─────────────────────────────────────────
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// ─── USDM formatting ──────────────────────────────────────────────────────────
+// ── USDM formatting ───────────────────────────────────────────────
 
 /** Raw bigint (18 dec) → "1,234.56 USDM" */
 export function fmtUSDM(raw: bigint, digits = 2): string {
@@ -21,7 +25,7 @@ export function fmtUSDM(raw: bigint, digits = 2): string {
   })} USDM`;
 }
 
-/** Compact: "$1.2K", "$3.4M" */
+/** "$1.2K", "$3.4M" */
 export function fmtUSDMCompact(raw: bigint): string {
   const val = parseFloat(formatUnits(raw, USDM_DECIMALS));
   if (val >= 1_000_000) return `$${(val / 1_000_000).toFixed(1)}M`;
@@ -31,15 +35,14 @@ export function fmtUSDMCompact(raw: bigint): string {
   return "$0";
 }
 
-/** Safe parse; returns 0n on invalid input */
+/** Parse string USDM amount to raw bigint. Returns 0n on error. */
 export function parseUSDMSafe(value: string): bigint {
   if (!value || isNaN(Number(value))) return 0n;
   try { return parseUnits(value as `${number}`, USDM_DECIMALS); }
   catch { return 0n; }
 }
 
-// ─── Probability ──────────────────────────────────────────────────────────────
-
+// ── Probability ───────────────────────────────────────────────────
 export function bpsToPercent(bps: bigint | number): number {
   return Number(bps) / 100;
 }
@@ -48,8 +51,7 @@ export function fmtProb(pct: number): string {
   return `${pct.toFixed(1)}%`;
 }
 
-// ─── Time ─────────────────────────────────────────────────────────────────────
-
+// ── Time ─────────────────────────────────────────────────────────
 export function fmtTimeLeft(seconds: number): string {
   if (seconds <= 0) return "Expired";
   return formatDistanceToNowStrict(new Date(Date.now() + seconds * 1_000));
@@ -59,53 +61,32 @@ export function fmtEndDate(unix: number): string {
   return format(new Date(unix * 1000), "MMM d, yyyy HH:mm");
 }
 
-// ─── Address ──────────────────────────────────────────────────────────────────
-
+// ── Address ──────────────────────────────────────────────────────
 export function shortenAddress(addr: string, chars = 4): string {
   if (!addr || addr.length < 10) return addr;
   return `${addr.slice(0, chars + 2)}...${addr.slice(-chars)}`;
 }
 
-// ─── Fee breakdown ────────────────────────────────────────────────────────────
-
-/**
- * Calculate fee breakdown for a given bet amount and platform fee config.
- * Returns all amounts in raw bigint (18 decimals).
- */
-export function calcFees(
-  betRaw: bigint,
-  platformFeeBps: number,
-): {
-  platformFee: bigint;
-  creatorFee:  bigint;
-  totalFee:    bigint;
-  net:         bigint;
-} {
+// ── Fee calculation ───────────────────────────────────────────────
+export function calcFees(betRaw: bigint, platformFeeBps: number) {
   const pFee = (betRaw * BigInt(platformFeeBps)) / BigInt(FEE_DENOMINATOR);
   const cFee = (betRaw * BigInt(CREATOR_FEE_BPS)) / BigInt(FEE_DENOMINATOR);
   const net  = betRaw - pFee - cFee;
   return { platformFee: pFee, creatorFee: cFee, totalFee: pFee + cFee, net };
 }
 
-// ─── Payout estimate ─────────────────────────────────────────────────────────
-
-/**
- * Estimate payout for buying `betRaw` USDM on one side.
- * All amounts in raw bigint (18 decimals).
- */
+/** Estimate payout for buying `betRaw` USDM on one side. */
 export function estimatePayout(
-  betRaw:       bigint,
+  betRaw: bigint,
   platformFeeBps: number,
-  currentPool:  bigint,
+  currentPool: bigint,
   oppositePool: bigint,
-): { shares: bigint; payout: bigint; multiplier: number } {
+) {
   if (betRaw === 0n) return { shares: 0n, payout: 0n, multiplier: 1 };
-
   const { net } = calcFees(betRaw, platformFeeBps);
   const newPool = currentPool + net;
   const total   = currentPool + oppositePool + net;
   const payout  = newPool > 0n ? (net * total) / newPool : 0n;
   const mult    = betRaw > 0n ? Number((payout * 10_000n) / betRaw) / 10_000 : 1;
-
   return { shares: net, payout, multiplier: mult };
 }
