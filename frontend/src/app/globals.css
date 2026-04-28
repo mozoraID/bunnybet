@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #050505; --surface: #0d0d0d; --surface-2: #141414;
+  --cyan: #00f5ff; --pink: #ff2d78; --purple: #b06fff;
+  --text: #f0f0f0; --text-muted: #8892a4; --border: rgba(255,255,255,0.06);
+}
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body { background-color: var(--bg); color: var(--text); min-height: 100vh; }
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,245,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,245,255,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #0d0d0d; }
+::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.2); border-radius: 2px; }
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+input[type=number] { -moz-appearance: textfield; }
+input:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(0,245,255,0.4), 0 0 12px rgba(0,245,255,0.08);
+}
+
+@layer utilities {
+  .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.06); }
+  .glass-cyan { background: rgba(0,245,255,0.04); backdrop-filter: blur(12px); border: 1px solid rgba(0,245,255,0.12); }
+  .gradient-text { background: linear-gradient(135deg,#00f5ff 0%,#b06fff 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .text-glow-cyan { text-shadow: 0 0 12px rgba(0,245,255,0.8),0 0 24px rgba(0,245,255,0.4); }
+  .border-glow { border-color:rgba(0,245,255,0.25); box-shadow:0 0 0 1px rgba(0,245,255,0.1),inset 0 0 20px rgba(0,245,255,0.02); }
+}
+
+[data-rk] {
+  --rk-colors-accentColor: #00f5ff !important;
+  --rk-colors-accentColorForeground: #050505 !important;
+  --rk-colors-modalBackground: #0d0d0d !important;
+  --rk-colors-modalBorder: rgba(0,245,255,0.15) !important;
+  --rk-colors-connectButtonBackground: rgba(0,245,255,0.08) !important;
+  --rk-colors-connectButtonText: #00f5ff !important;
+  --rk-radii-modal: 12px !important;
+}
