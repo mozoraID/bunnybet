@@ -5,7 +5,7 @@ import { useAccount }    from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { formatUnits }   from "viem";
 import { useVaultBalance, useVaultActions } from "@/hooks/useVault";
-import { fmtUSDM, cn }   from "@/lib/utils";
+import { fmtUSDM, parseUSDMSafe, cn }  from "@/lib/utils";
 import { USDM_DECIMALS } from "@/lib/contracts";
 
 type Tab = "deposit" | "withdraw";
@@ -17,23 +17,33 @@ export function VaultPanel() {
   const [amount, setAmount] = useState("");
   const [busy,   setBusy]   = useState(false);
 
-  const { data: bal }                             = useVaultBalance();
-  const { approveVault, deposit, withdraw, isApproving } = useVaultActions();
+  const { data: bal }                                          = useVaultBalance();
+  const { approveExact, deposit, withdraw, isApproving }  = useVaultActions();
 
   const vaultBal  = bal?.vaultBalance  ?? 0n;
-  const walletBal = bal?.walletBalance  ?? 0n;
-  const allowance = bal?.allowance      ?? 0n;
-  const needsApproval = allowance === 0n;
+  const walletBal = bal?.walletBalance ?? 0n;
+  const allowance = bal?.allowance     ?? 0n;
+
+  const amountWei = parseUSDMSafe(amount);
+  // Need approval if depositing and allowance < amount
+  const needsApproval = tab === "deposit" && amountWei > 0n && allowance < amountWei;
 
   async function handle() {
     setBusy(true);
     try {
       if (needsApproval) {
-        await approveVault();
+        // Approve EXACT amount the user wants to deposit
+        const ok = await approveExact(amountWei);
+        if (!ok) return;
+        // Auto-deposit after approval
+        await deposit(amount);
+        setAmount("");
       } else if (tab === "deposit") {
-        await deposit(amount); setAmount("");
+        await deposit(amount);
+        setAmount("");
       } else {
-        await withdraw(amount); setAmount("");
+        await withdraw(amount);
+        setAmount("");
       }
     } finally { setBusy(false); }
   }
@@ -53,11 +63,7 @@ export function VaultPanel() {
         <div className="text-3xl font-mono font-bold text-off-white">{fmtUSDM(vaultBal)}</div>
         <div className="flex items-center justify-between mt-2">
           <span className="font-mono text-[10px] text-dim-2">WALLET: {fmtUSDM(walletBal)}</span>
-          {vaultBal > 0n && (
-            <span className="font-mono text-[10px] text-dim-2">
-              TRADE WITHOUT APPROVALS ✓
-            </span>
-          )}
+          {vaultBal > 0n && <span className="font-mono text-[10px] text-dim-2">✓ TRADE WITHOUT APPROVALS</span>}
         </div>
       </div>
 
@@ -65,10 +71,9 @@ export function VaultPanel() {
         {/* How it works */}
         <div className="border border-border-dark p-3 font-mono text-xs text-dim-2 space-y-1">
           <p className="text-off-white font-bold">HOW VAULT WORKS</p>
-          <p>1. Approve USDM once (permanent)</p>
-          <p>2. Deposit USDM into vault</p>
-          <p>3. Trade any market — no more approvals</p>
-          <p>4. Withdraw anytime</p>
+          <p>1. Deposit USDM into vault (approval for exact amount)</p>
+          <p>2. Trade any market with one click — no more approvals</p>
+          <p>3. Withdraw anytime</p>
         </div>
 
         {/* Tab */}
@@ -117,23 +122,28 @@ export function VaultPanel() {
           </div>
         </div>
 
-        {/* CTA */}
-        {needsApproval ? (
-          <button onClick={handle} disabled={busy || isApproving}
-            className="w-full py-3.5 font-mono text-xs tracking-widest font-bold bg-off-white/15 text-off-white border border-off-white/20 hover:bg-off-white/20 disabled:opacity-50">
-            {(busy || isApproving) ? "APPROVING..." : "STEP 1: APPROVE USDM (ONE-TIME)"}
-          </button>
-        ) : (
-          <button onClick={handle} disabled={busy || !amount || Number(amount) <= 0}
-            className={cn("w-full py-3.5 font-mono text-xs tracking-widest font-bold transition-all",
-              !busy && amount && Number(amount) > 0
-                ? "bg-off-white text-ink hover:bg-cream"
-                : "bg-ink-4 text-dim-2 cursor-not-allowed border border-border-dark")}>
-            {busy ? "PROCESSING..."
-              : tab === "deposit" ? `DEPOSIT ${amount || "0"} USDM`
-                                  : `WITHDRAW ${amount || "0"} USDM`}
-          </button>
+        {/* Approval notice — only show when needed, with exact amount */}
+        {needsApproval && amountWei > 0n && (
+          <div className="border border-off-white/10 p-3 font-mono text-xs text-dim-2">
+            WILL APPROVE EXACTLY <span className="text-off-white font-bold">{amount} USDM</span> → VAULT,
+            THEN DEPOSIT AUTOMATICALLY.
+          </div>
         )}
+
+        {/* CTA */}
+        <button onClick={handle} disabled={busy || isApproving || !amount || Number(amount) <= 0}
+          className={cn("w-full py-3.5 font-mono text-xs tracking-widest font-bold transition-all",
+            !busy && !isApproving && amount && Number(amount) > 0
+              ? "bg-off-white text-ink hover:bg-cream"
+              : "bg-ink-4 text-dim-2 cursor-not-allowed border border-border-dark")}>
+          {(busy || isApproving)
+            ? "PROCESSING..."
+            : needsApproval
+              ? `APPROVE & DEPOSIT ${amount} USDM`
+              : tab === "deposit"
+                ? `DEPOSIT ${amount || "0"} USDM`
+                : `WITHDRAW ${amount || "0"} USDM`}
+        </button>
       </div>
     </div>
   );
