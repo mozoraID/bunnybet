@@ -31,12 +31,8 @@ export const wagmiConfig = getDefaultConfig({
   transports: {
     [megaETH.id]: http(
       process.env.NEXT_PUBLIC_RPC_URL ?? "https://mainnet.megaeth.com/rpc",
-      {
-        timeout:      10_000,  // 10 second timeout
-        retryCount:   2,
-        retryDelay:   1_000,
-      }
+      { timeout: 15_000 }
     ),
   },
-  ssr: false, // Disable SSR — prevents Vercel server from calling MegaETH RPC
+  ssr: false,
 });
