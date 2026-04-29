@@ -15,8 +15,11 @@ export const megaETH = defineChain({
     },
   },
   blockExplorers: {
-    default: { name: "Blockscout", url: "https://megaeth.blockscout.com", apiUrl: "https://megaeth.blockscout.com/api" },
-    etherscan: { name: "MegaEtherscan", url: "https://mega.etherscan.io" },
+    default: {
+      name:   "Blockscout",
+      url:    "https://megaeth.blockscout.com",
+      apiUrl: "https://megaeth.blockscout.com/api",
+    },
   },
   testnet: false,
 });
@@ -25,6 +28,15 @@ export const wagmiConfig = getDefaultConfig({
   appName:   "BunnyBet",
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "bunnybet",
   chains:    [megaETH],
-  transports: { [megaETH.id]: http(process.env.NEXT_PUBLIC_RPC_URL ?? "https://mainnet.megaeth.com/rpc") },
-  ssr: true,
+  transports: {
+    [megaETH.id]: http(
+      process.env.NEXT_PUBLIC_RPC_URL ?? "https://mainnet.megaeth.com/rpc",
+      {
+        timeout:      10_000,  // 10 second timeout
+        retryCount:   2,
+        retryDelay:   1_000,
+      }
+    ),
+  },
+  ssr: false, // Disable SSR — prevents Vercel server from calling MegaETH RPC
 });
