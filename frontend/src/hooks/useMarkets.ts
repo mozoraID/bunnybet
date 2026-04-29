@@ -84,7 +84,13 @@ async function fetchMarketsPage(
   // 2. Read all markets in parallel (no multicall)
   const results = await Promise.all(addresses.map((addr) => readMarket(client, addr)));
 
-  return results.filter((m): m is Market => m !== null);
+  // Deduplicate by question text (bot may create duplicates)
+  const seen = new Set<string>();
+  return results.filter((m): m is Market => {
+    if (!m || seen.has(m.question)) return false;
+    seen.add(m.question);
+    return true;
+  });
 }
 
 export function useMarkets(initialLimit = MARKETS_PER_PAGE) {
