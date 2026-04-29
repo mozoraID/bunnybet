@@ -2,16 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Design tokens ────────────────────────────────────────────────── */
+/* ── MegaETH Design Tokens ───────────────────────────────────────── */
 :root {
-  --bg:      #080808;
-  --bg-2:    #0f0f0f;
-  --bg-3:    #161616;
-  --green:   #00ff88;
-  --red:     #ff4545;
-  --text:    #f5f5f5;
-  --muted:   #7a7a7a;
-  --border:  rgba(255, 255, 255, 0.07);
+  --cream:       #f0ece4;
+  --cream-2:     #e8e4dc;
+  --ink:         #111111;
+  --ink-2:       #1a1a1a;
+  --black:       #0a0a0a;
+  --off-white:   #f0ece4;
+  --border-l:    rgba(0,0,0,0.10);
+  --border-d:    rgba(255,255,255,0.08);
 }
 
 /* ── Base ─────────────────────────────────────────────────────────── */
@@ -23,106 +23,122 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* App is dark-base (nav/bg) with light content cards */
 body {
-  background: var(--bg);
-  color: var(--text);
+  background: #111111;
+  color: #f0ece4;
   min-height: 100vh;
   font-feature-settings: "rlig" 1, "calt" 1;
 }
 
 /* ── Scrollbar ────────────────────────────────────────────────────── */
-::-webkit-scrollbar        { width: 4px; height: 4px; }
-::-webkit-scrollbar-track  { background: var(--bg); }
-::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.10); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+::-webkit-scrollbar        { width: 3px; height: 3px; }
+::-webkit-scrollbar-track  { background: #111; }
+::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.15); border-radius: 2px; }
 
 /* ── Inputs ───────────────────────────────────────────────────────── */
-input:focus,
-textarea:focus,
-select:focus { outline: none; }
-
+input:focus, textarea:focus, select:focus { outline: none; }
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
-input[type=number]         { -moz-appearance: textfield; }
+input[type=number]           { -moz-appearance: textfield; }
 input[type="datetime-local"] { color-scheme: dark; }
 
 /* ── Utilities ────────────────────────────────────────────────────── */
 @layer utilities {
+  /* ── Surface variants ────── */
 
-  /* Glass surfaces */
-  .glass {
-    background: rgba(255,255,255,0.025);
+  /* Light card (cream) */
+  .card-light {
+    background: var(--cream);
+    border: 1px solid rgba(0,0,0,0.08);
+    color: var(--black);
+  }
+  .card-light-hover:hover {
+    background: var(--cream-2);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+  }
+
+  /* Dark panel */
+  .card-dark {
+    background: #1a1a1a;
     border: 1px solid rgba(255,255,255,0.07);
-    backdrop-filter: blur(12px);
-  }
-  .glass-green {
-    background: rgba(0,255,136,0.05);
-    border: 1px solid rgba(0,255,136,0.14);
+    color: var(--off-white);
   }
 
-  /* Gradient text */
-  .gradient-text {
-    background: linear-gradient(135deg, #00ff88 0%, #9b6fff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  /* Terminal box (monospace data) */
+  .terminal-box {
+    background: #111;
+    border: 1px solid rgba(255,255,255,0.12);
+    font-family: var(--font-mono);
   }
 
-  /* Live dot */
-  .live-dot::before {
-    content: "";
-    display: inline-block;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: #00ff88;
-    box-shadow: 0 0 6px rgba(0,255,136,0.9);
-    animation: pulseDot 1.8s ease-in-out infinite;
-    margin-right: 5px;
-    vertical-align: middle;
+  /* ── Typography ─────────────── */
+  .text-display {
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    font-weight: 900;
+    text-transform: uppercase;
   }
 
-  /* Shimmer skeleton */
+  /* ── Probability bar ─────────── */
+  .prob-bar-yes { background: #0a0a0a; }
+  .prob-bar-no  { background: #888; }
+
+  /* ── Shimmer skeleton ──────── */
   .shimmer {
     background: linear-gradient(
       90deg,
-      rgba(255,255,255,0.03) 25%,
-      rgba(255,255,255,0.07) 50%,
-      rgba(255,255,255,0.03) 75%
+      rgba(255,255,255,0.04) 25%,
+      rgba(255,255,255,0.08) 50%,
+      rgba(255,255,255,0.04) 75%
+    );
+    background-size: 600px 100%;
+    animation: shimmer 1.8s linear infinite;
+  }
+  .shimmer-light {
+    background: linear-gradient(
+      90deg,
+      rgba(0,0,0,0.04) 25%,
+      rgba(0,0,0,0.08) 50%,
+      rgba(0,0,0,0.04) 75%
     );
     background-size: 600px 100%;
     animation: shimmer 1.8s linear infinite;
   }
 
-  /* Hide scrollbar */
+  /* ── Misc ───────────────────── */
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  /* Focus ring */
-  .focus-green {
-    transition: box-shadow 0.15s, border-color 0.15s;
-  }
-  .focus-green:focus {
-    box-shadow: 0 0 0 1px rgba(0,255,136,0.4);
-    border-color: rgba(0,255,136,0.35) !important;
+  /* Cursor blink */
+  .cursor::after {
+    content: "▮";
+    animation: blink 1s step-end infinite;
+    font-size: 0.8em;
+    margin-left: 2px;
   }
 
-  /* Stagger animation helpers */
-  .delay-1 { animation-delay: 50ms; }
-  .delay-2 { animation-delay: 100ms; }
-  .delay-3 { animation-delay: 150ms; }
+  /* Live dot — now a static white/black dot, no neon */
+  .live-dot::before {
+    content: "●";
+    font-size: 8px;
+    margin-right: 5px;
+    vertical-align: middle;
+    opacity: 0.6;
+  }
 }
 
-/* ── RainbowKit overrides ─────────────────────────────────────────── */
+/* ── RainbowKit: match MegaETH dark panel style ─────────────────── */
 [data-rk] {
-  --rk-colors-accentColor:              #00ff88 !important;
-  --rk-colors-accentColorForeground:    #080808 !important;
-  --rk-colors-modalBackground:          #0f0f0f !important;
-  --rk-colors-modalBorder:              rgba(255,255,255,0.09) !important;
-  --rk-colors-profileForeground:        #161616 !important;
-  --rk-colors-menuItemBackground:       #161616 !important;
-  --rk-colors-connectButtonBackground:  rgba(0,255,136,0.07) !important;
-  --rk-colors-connectButtonText:        #00ff88 !important;
-  --rk-radii-modal:                     14px !important;
-  --rk-radii-menuButton:                8px !important;
-  --rk-fonts-body:                      var(--font-sans) !important;
+  --rk-colors-accentColor:              #f0ece4 !important;
+  --rk-colors-accentColorForeground:    #0a0a0a !important;
+  --rk-colors-modalBackground:          #1a1a1a !important;
+  --rk-colors-modalBorder:              rgba(255,255,255,0.08) !important;
+  --rk-colors-profileForeground:        #222 !important;
+  --rk-colors-menuItemBackground:       #222 !important;
+  --rk-colors-connectButtonBackground:  rgba(240,236,228,0.08) !important;
+  --rk-colors-connectButtonText:        #f0ece4 !important;
+  --rk-radii-modal:                     12px !important;
+  --rk-fonts-body:                      var(--font-mono) !important;
 }
