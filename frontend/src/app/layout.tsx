@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster }   from "react-hot-toast";
 import { useState }  from "react";
 import { wagmiConfig, megaETH } from "@/lib/wagmi";
+import { initRelayClient } from "@/lib/relay";
 import { Navbar }    from "@/components/layout/Navbar";
 
 // Display font — heavy condensed for MegaETH headlines
@@ -40,6 +41,8 @@ Object.assign(rkTheme.colors, {
   profileForeground: "#222",
   menuItemBackground: "#222",
 });
+
+initRelayClient();
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [qc] = useState(() => new QueryClient({
